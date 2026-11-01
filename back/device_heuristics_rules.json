@@ -64,7 +64,7 @@
       "节点",
       "无线回程",
       "回程",
-      "ap",
+      "\\bap\\b",
       "access point",
       "access-point",
       "switch",
