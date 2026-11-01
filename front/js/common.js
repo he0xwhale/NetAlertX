@@ -733,10 +733,40 @@ function openUrl(urls) {
 // -----------------------------------------------------------------------------
 // force load URL in current window with specific anchor
 function forceLoadUrl(relativeUrl) {
+  if (window.location.pathname.endsWith('/devices.php') &&
+      relativeUrl.startsWith('devices.php#') &&
+      typeof $.fn.DataTable !== 'undefined' &&
+      $.fn.DataTable.isDataTable('#tableDevices')) {
+    var status = relativeUrl.split('#')[1] || 'my_devices';
+    deviceStatus = status;
+    history.replaceState(null, '', '#' + status);
+    var tableTitle, color;
+    switch (deviceStatus) {
+      case 'my_devices':       tableTitle = getString('Device_Shortcut_AllDevices');  color = 'aqua';   break;
+      case 'connected':        tableTitle = getString('Device_Shortcut_Connected');   color = 'green';  break;
+      case 'all':              tableTitle = getString('Gen_All_Devices');             color = 'aqua';   break;
+      case 'favorites':        tableTitle = getString('Device_Shortcut_Favorites');   color = 'yellow'; break;
+      case 'new':              tableTitle = getString('Device_Shortcut_NewDevices');  color = 'yellow'; break;
+      case 'down':             tableTitle = getString('Device_Shortcut_DownOnly');    color = 'red';    break;
+      case 'archived':         tableTitle = getString('Device_Shortcut_Archived');    color = 'gray';   break;
+      case 'offline':          tableTitle = getString('Gen_Offline');                 color = 'gray';   break;
+      case 'unstable_devices': tableTitle = getString('Device_Shortcut_Unstable');    color = 'orange'; break;
+      case 'all_devices':      tableTitle = getString('Gen_All_Devices');             color = 'gray';   break;
+      case 'network_devices':  tableTitle = getString('Network_Devices');             color = 'aqua';   break;
+      default:                 tableTitle = getString('Device_Shortcut_Devices');     color = 'gray';   break;
+    }
+    $('#tableDevicesTitle')[0].className = 'box-title text-' + color;
+    $('#tableDevicesBox')[0].className = 'box box-' + color;
+    $('#tableDevicesTitle').html(tableTitle);
+    $('#tableDevices').DataTable().ajax.reload(null, true);
+    if (window.event && window.event.preventDefault) {
+      window.event.preventDefault();
+    }
+    return false;
+  }
 
   window.location.replace(relativeUrl);
   window.location.reload()
-
 }
 
 // -----------------------------------------------------------------------------

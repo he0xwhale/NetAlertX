@@ -74,14 +74,32 @@ function lang($key)
 {
     global $pia_lang_selected, $strings;
 
-    // Get the data from JSON files
-    $languageData = getLanguageDataFromJson();
+    // Performance: build the merged language table once per request instead of on every call.
+    // Only the selected language and the en_us fallback are ever consulted below.
+    static $mergedLanguageData = null;
 
-    // Get the data from SQL query
-    $sqlLanguageData = $strings;
+    if ($mergedLanguageData === null) {
+        $mergedLanguageData = array();
+        $codes = array_unique(array($pia_lang_selected, 'en_us'));
 
-    // Merge JSON data with SQL data
-    $mergedLanguageData = mergeLanguageData($languageData, $sqlLanguageData);
+        foreach ($codes as $code) {
+            $jsonFilePath = dirname(__FILE__) . '/' . $code . '.json';
+
+            if (file_exists($jsonFilePath)) {
+                $data = json_decode(file_get_contents($jsonFilePath), true);
+
+                if (is_array($data)) {
+                    // SQL (plugin) strings take priority for overlapping keys - same as mergeLanguageData()
+                    foreach ($data as $k => $v) {
+                        if (isset($strings[$k])) {
+                            $data[$k] = $strings[$k];
+                        }
+                    }
+                    $mergedLanguageData[$code] = $data;
+                }
+            }
+        }
+    }
 
     // Check if the key exists in the selected language
     if (isset($mergedLanguageData[$pia_lang_selected][$key]) && $mergedLanguageData[$pia_lang_selected][$key] != '') {
@@ -99,5 +117,3 @@ function lang($key)
     // HTML encode the result before returning
     return str_replace("'", '&#39;', $result);
 }
-
-
