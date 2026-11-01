@@ -86,10 +86,10 @@ def sync_all_client_names(device_data):
             if name and name.lower() not in NULL_EQUIVALENTS and name.lower() != mac:
                 cur.execute(
                     """UPDATE Devices
-                       SET devName = ?, devNameSource = 'ASUSWRT'
+                       SET devName = ?, devNameSource = 'ASUSWRT', devIsNew = 0
                        WHERE LOWER(devMac) = ?
                          AND COALESCE(devNameSource, '') NOT IN ('USER', 'LOCKED')
-                         AND COALESCE(devName, '') != ?""",
+                         AND (COALESCE(devName, '') != ? OR devIsNew = 1)""",
                     (name, mac, name)
                 )
             if vendor and vendor.lower() not in NULL_EQUIVALENTS:

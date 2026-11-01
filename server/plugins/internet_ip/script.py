@@ -91,6 +91,22 @@ def main():
 
     plugin_objects.write_result_file()
 
+    try:
+        import sqlite3
+        from const import fullDbPath
+        conn = sqlite3.connect(fullDbPath)
+        cur = conn.cursor()
+        cur.execute(
+            """UPDATE Devices
+               SET devName = '互联网 (公网出口)', devIsNew = 0
+               WHERE LOWER(devMac) = 'internet'
+                 AND (COALESCE(devName, '') IN ('', '(name not found)', '(unknown)') OR devIsNew = 1)"""
+        )
+        conn.commit()
+        conn.close()
+    except Exception as e:
+        mylog('none', [f'[{pluginName}] update internet device name error: {e}'])
+
     mylog('verbose', [f'[{pluginName}] Finished '])
 
     return 0

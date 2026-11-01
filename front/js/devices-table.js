@@ -202,7 +202,9 @@ function initializeDatatable (status) {
   }
 
   // retrieve page size
-  var tableRows       = getCache ("nax_parTableRows") == "" ? parseInt(getSetting("UI_DEFAULT_PAGE_SIZE")) : getCache ("nax_parTableRows") ;
+  var cachedRows      = getCache ("nax_parTableRows");
+  var defaultRows     = parseInt(getSetting("UI_DEFAULT_PAGE_SIZE")) || 100000;
+  var tableRows       = (cachedRows == "" || cachedRows == "20") ? defaultRows : parseInt(cachedRows);
 
   // Save status selected
   deviceStatus = status;

@@ -184,12 +184,13 @@ def guess_device_attributes(
     type_ = None
     icon = None
 
-    # 1. Try strict MAC match first
-    type_, icon = match_mac_and_vendor(mac_clean, vendor, default_type, default_icon)
+    # 1. Try explicit Name match FIRST so user-configured/router device names take priority
+    #    over generic MAC/vendor prefixes (e.g. Apple HomePod, Intel laptop WiFi, Haier appliance)
+    type_, icon = match_name(name, default_type, default_icon)
 
-    # 2. If no strict match, try Name match BEFORE checking for random MAC
+    # 2. If no name match, try strict MAC + Vendor match
     if not type_ or type_ == default_type:
-        type_, icon = match_name(name, default_type, default_icon)
+        type_, icon = match_mac_and_vendor(mac_clean, vendor, default_type, default_icon)
 
     # 3. Only if it's STILL not found, apply the Random MAC block
     if type_ == default_type and is_random_mac(mac):
