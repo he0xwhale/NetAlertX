@@ -168,6 +168,16 @@ FIELD_SPECS = {
     },
 
     # ==========================================================
+    # devSourcePlugin
+    # ==========================================================
+    "devSourcePlugin": {
+        "scan_col": "scanSourcePlugin",
+        "source_col": None,
+        "empty_values": NULL_EQUIVALENTS,
+        "priority": None,
+    },
+
+    # ==========================================================
     # TOPOLOGY (PARENT NODE)
     # ==========================================================
     "devParentMAC": {

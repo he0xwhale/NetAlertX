@@ -25,18 +25,16 @@ missingNumbers = [];
 // DEVICE_COLUMN_FIELDS, COL, NUMERIC_DEFAULTS, GRAPHQL_EXTRA_FIELDS, COLUMN_NAME_MAP
 // are all defined in js/device-columns.js — edit that file to add new columns.
 
-// Collapse DevicePresence and Filters sections by default on small/mobile screens
-(function collapseOnMobile() {
-  if (window.innerWidth < 768) {
-    ['#clients', '#columnFiltersWrap'].forEach(function(sel) {
-      var $box = $(sel);
-      if ($box.length) {
-        $box.addClass('collapsed-box');
-        $box.find('.box-body, .box-footer').hide();
-        $box.find('[data-widget="collapse"] i').removeClass('fa-minus').addClass('fa-plus');
-      }
-    });
-  }
+// Collapse DevicePresence and Filters sections by default so the device table is immediately visible
+(function collapseSectionsByDefault() {
+  ['#clients', '#columnFiltersWrap'].forEach(function(sel) {
+    var $box = $(sel);
+    if ($box.length) {
+      $box.addClass('collapsed-box');
+      $box.find('.box-body, .box-footer').hide();
+      $box.find('[data-widget="collapse"] i').removeClass('fa-minus').addClass('fa-plus');
+    }
+  });
 })();
 
 // Read parameters & Initialize components

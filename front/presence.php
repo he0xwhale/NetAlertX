@@ -32,7 +32,7 @@
       <div class="row">
 
         <div class="col-lg-2 col-sm-4 col-xs-6">
-          <a href="#" onclick="javascript: getDevicesPresence('all');">
+          <a href="#" onclick="getDevicesPresence('all'); return false;">
           <div class="small-box bg-aqua">
             <div class="inner"><h3 id="devicesAll"> -- </h3>
                 <p class="infobox_label"><?= lang('Presence_Shortcut_AllDevices');?></p>
@@ -44,7 +44,7 @@
 
 <!-- top small box 2 ------------------------------------------------------- -->
         <div class="col-lg-2 col-sm-4 col-xs-6">
-          <a href="#" onclick="javascript: getDevicesPresence('connected');">
+          <a href="#" onclick="getDevicesPresence('connected'); return false;">
             <div class="small-box bg-green">
               <div class="inner"> <h3 id="devicesConnected"> -- </h3>
                   <p class="infobox_label"><?= lang('Presence_Shortcut_Connected');?></p>
@@ -56,7 +56,7 @@
 
 <!-- top small box 3 ------------------------------------------------------- -->
         <div class="col-lg-2 col-sm-4 col-xs-6">
-          <a href="#" onclick="javascript: getDevicesPresence('favorites');">
+          <a href="#" onclick="getDevicesPresence('favorites'); return false;">
             <div  class="small-box bg-yellow">
               <div class="inner"> <h3 id="devicesFavorites"> -- </h3>
                 <p class="infobox_label"><?= lang('Presence_Shortcut_Favorites');?></p>
@@ -68,7 +68,7 @@
 
 <!-- top small box 4 ------------------------------------------------------- -->
         <div class="col-lg-2 col-sm-4 col-xs-6">
-          <a href="#" onclick="javascript: getDevicesPresence('new');">
+          <a href="#" onclick="getDevicesPresence('new'); return false;">
             <div  class="small-box bg-yellow">
               <div class="inner"> <h3 id="devicesNew"> -- </h3>
                 <p class="infobox_label"><?= lang('Presence_Shortcut_NewDevices');?></p>
@@ -80,7 +80,7 @@
 
 <!-- top small box 5 ------------------------------------------------------- -->
         <div class="col-lg-2 col-sm-4 col-xs-6">
-          <a href="#" onclick="javascript: getDevicesPresence('down');">
+          <a href="#" onclick="getDevicesPresence('down'); return false;">
             <div  class="small-box bg-red">
               <div class="inner"> <h3 id="devicesDown"> -- </h3>
                 <p class="infobox_label"><?= lang('Presence_Shortcut_DownAlerts');?></p>
@@ -92,7 +92,7 @@
 
 <!-- top small box 6 ------------------------------------------------------- -->
         <div class="col-lg-2 col-sm-4 col-xs-6">
-          <a href="#" onclick="javascript: getDevicesPresence('archived');">
+          <a href="#" onclick="getDevicesPresence('archived'); return false;">
             <div  class="small-box bg-gray top_small_box_gray_text">
               <div class="inner"> <h3 id="devicesHidden"> -- </h3>
                 <p class="infobox_label"><?= lang('Presence_Shortcut_Archived');?></p>
@@ -105,13 +105,18 @@
       </div>
 
 <!-- Activity Chart ------------------------------------------------------- -->
-      <div class="row">
+      <div class="row" id="DevicePresence">
           <div class="col-md-12">
-          <div class="box" id="clients">
+          <div class="box collapsed-box" id="clients">
               <div class="box-header with-border">
                 <h3 class="box-title"><?= lang('Device_Shortcut_OnlineChart');?></h3>
+                <div class="box-tools pull-right">
+                  <button type="button" class="btn btn-box-tool" data-widget="collapse">
+                    <i class="fa fa-plus"></i>
+                  </button>
+                </div>
               </div>
-              <div class="box-body">
+              <div class="box-body" style="display: none;">
                 <div class="chart">
                   <script src="lib/chart.js/Chart.js"></script>
                   <!-- presence chart -->

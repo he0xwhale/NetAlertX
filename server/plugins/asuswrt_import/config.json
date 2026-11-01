@@ -141,12 +141,13 @@
           }
         ]
       },
-      "default_value": ["devMac", "devLastIP"],
+      "default_value": ["devMac", "devLastIP", "devName", "devVendor", "devSourcePlugin"],
       "options": [
         "devMac",
         "devLastIP",
         "devName",
-        "devVendor"
+        "devVendor",
+        "devSourcePlugin"
       ],
       "localized": ["name", "description"],
       "name": [
