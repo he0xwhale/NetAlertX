@@ -102,11 +102,10 @@ def handleEmpty(input):
     if not input:
         return 'null'
     else:
-        # Validate and sanitize message content
-        # Remove potentially problematic characters in string
+        # Validate and sanitize message content while preserving UTF-8 (e.g. Chinese device names)
         if isinstance(input, str):
-            input = re.sub(r'[^\x00-\x7F]+', ' ', input)
-            input = input.replace('\n', '')  # Removing new lines
+            input = re.sub(r'[\x00-\x1f\x7f]+', ' ', input)
+            input = input.replace('\n', '').strip()
         return input
 
 
@@ -421,7 +420,7 @@ class Plugin_Objects:
         )
 
     def write_result_file(self):
-        with open(self.result_file, mode="w") as fp:
+        with open(self.result_file, mode="w", encoding="utf-8") as fp:
             for obj in self.objects:
                 fp.write(obj.write())
 

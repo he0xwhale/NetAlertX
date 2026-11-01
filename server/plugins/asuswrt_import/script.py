@@ -57,9 +57,54 @@ def main():
 
     plugin_objects.write_result_file()
 
+    # Sync custom client names from AsusWRT for all known devices (including offline/AiMesh nodes)
+    sync_all_client_names(device_data)
+
     mylog("verbose", [f"[{pluginName}] finished"])
 
     return 0
+
+
+def sync_all_client_names(device_data):
+    try:
+        import sqlite3
+        from const import fullDbPath, NULL_EQUIVALENTS
+        conn = sqlite3.connect(fullDbPath)
+        cur = conn.cursor()
+        for _, device in device_data.items():
+            mac = str(device.description.mac or "").strip().lower()
+            name = handleEmpty(device.description.name)
+            vendor = handleEmpty(device.description.vendor)
+            if not mac:
+                continue
+            # Always attribute devices known by router to ASUSWRT
+            cur.execute(
+                "UPDATE Devices SET devSourcePlugin = 'ASUSWRT' WHERE LOWER(devMac) = ? AND COALESCE(devSourcePlugin, '') != 'ASUSWRT'",
+                (mac,)
+            )
+            # Update devName if router has a valid custom name (not empty, not raw MAC) and device isn't locked by USER
+            if name and name.lower() not in NULL_EQUIVALENTS and name.lower() != mac:
+                cur.execute(
+                    """UPDATE Devices
+                       SET devName = ?, devNameSource = 'ASUSWRT'
+                       WHERE LOWER(devMac) = ?
+                         AND COALESCE(devNameSource, '') NOT IN ('USER', 'LOCKED')
+                         AND COALESCE(devName, '') != ?""",
+                    (name, mac, name)
+                )
+            if vendor and vendor.lower() not in NULL_EQUIVALENTS:
+                cur.execute(
+                    """UPDATE Devices
+                       SET devVendor = ?, devVendorSource = 'ASUSWRT'
+                       WHERE LOWER(devMac) = ?
+                         AND COALESCE(devVendorSource, '') NOT IN ('USER', 'LOCKED')
+                         AND COALESCE(devVendor, '') != ?""",
+                    (vendor, mac, vendor)
+                )
+        conn.commit()
+        conn.close()
+    except Exception as e:
+        mylog("none", [f"[{pluginName}] sync_all_client_names error: {e}"])
 
 
 def get_device_data():
