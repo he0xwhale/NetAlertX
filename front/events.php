@@ -26,7 +26,7 @@ require 'php/templates/header.php';
         foreach ($eventBoxes as $box) :
       ?>
         <div class="col-lg-2 col-sm-4 col-xs-6">
-          <a href="#" onclick="getEvents('<?= $box['type'] ?>'); return false;">
+          <a href="#" onclick="getEvents('<?= $box['type'] ?>')">
             <div class="small-box bg-<?= $box['color'] ?>">
               <div class="inner">
                 <h3 id="<?= $box['id'] ?>">--</h3>

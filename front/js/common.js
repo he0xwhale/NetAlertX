@@ -740,6 +740,14 @@ function forceLoadUrl(relativeUrl) {
     var status = relativeUrl.split('#')[1] || 'my_devices';
     deviceStatus = status;
     history.replaceState(null, '', '#' + status);
+    ['#clients', '#columnFiltersWrap'].forEach(function(sel) {
+      var $box = $(sel);
+      if ($box.length && !$box.hasClass('collapsed-box')) {
+        $box.addClass('collapsed-box');
+        $box.find('.box-body, .box-footer').hide();
+        $box.find('[data-widget="collapse"] i').removeClass('fa-minus').addClass('fa-plus');
+      }
+    });
     var tableTitle, color;
     switch (deviceStatus) {
       case 'my_devices':       tableTitle = getString('Device_Shortcut_AllDevices');  color = 'aqua';   break;

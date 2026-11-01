@@ -84,6 +84,7 @@ function presenceOverTime(
             datasets: datasets
           },
           options: {
+            maintainAspectRatio: false,
             legend: {
                 display: true,
                 labels: {

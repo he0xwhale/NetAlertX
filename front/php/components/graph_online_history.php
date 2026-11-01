@@ -6,7 +6,7 @@
 
 ?>
 
-<script src="js/graph_online_history.js"></script>
+<script src="js/graph_online_history.js?v=fix1"></script>
 <script >
 
 
@@ -53,4 +53,4 @@ function initOnlineHistoryGraph() {
 
 </script>
 <!-- <canvas id="clientsChart" width="800" height="140" class="extratooltipcanvas no-user-select"></canvas> -->
-<canvas id="OnlineChart" style="width:100%; height: 150px;  margin-bottom: 15px;"></canvas>
+<div style="position: relative; height: 150px; width: 100%; margin-bottom: 15px;"><canvas id="OnlineChart"></canvas></div>

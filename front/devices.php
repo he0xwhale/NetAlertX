@@ -155,4 +155,4 @@
 <script src="js/devices-filters.js?v=<?php include 'php/templates/version.php'; ?>"></script>
 <script src="js/devices-table.js?v=<?php include 'php/templates/version.php'; ?>"></script>
 <script src="js/devices-custom-props.js?v=<?php include 'php/templates/version.php'; ?>"></script>
-<script src="js/devices-init.js?v=<?php include 'php/templates/version.php'; ?>.col1"></script>
+<script src="js/devices-init.js?v=<?php include 'php/templates/version.php'; ?>.col2"></script>
