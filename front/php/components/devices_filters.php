@@ -24,11 +24,11 @@ function renderFilterDropdown($headerKey, $columnName, $values) {
         $optionsHtml .= '<option value="' . $escapedValue . '">' . $escapedLabel . '</option>';
     }
 
-    // Generate the dropdown HTML
+    // Generate the dropdown HTML (inline compact layout)
     return '
-    <div class="filter-group input-group">
-        <label for="filter_' . htmlspecialchars($columnName) . '">' . lang($headerKey) . ': </label>
-        <select id="filter_' . htmlspecialchars($columnName) . '" class="filter-dropdown" data-column="' . htmlspecialchars($columnName) . '">
+    <div class="filter-group input-group" style="display: inline-flex; flex-direction: row; align-items: center; gap: 6px; padding: 0; margin: 0; width: auto;">
+        <label for="filter_' . htmlspecialchars($columnName) . '" style="margin: 0; padding: 0; font-weight: 600; white-space: nowrap;">' . lang($headerKey) . ': </label>
+        <select id="filter_' . htmlspecialchars($columnName) . '" class="filter-dropdown form-control input-sm" data-column="' . htmlspecialchars($columnName) . '" style="margin: 0; padding: 2px 8px; height: 28px; width: auto; min-width: 90px; border-radius: 3px; display: inline-block;">
             ' . $optionsHtml . '
         </select>
     </div>';

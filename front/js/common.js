@@ -740,7 +740,7 @@ function forceLoadUrl(relativeUrl) {
     var status = relativeUrl.split('#')[1] || 'my_devices';
     deviceStatus = status;
     history.replaceState(null, '', '#' + status);
-    ['#clients', '#columnFiltersWrap'].forEach(function(sel) {
+    ['#clients'].forEach(function(sel) {
       var $box = $(sel);
       if ($box.length && !$box.hasClass('collapsed-box')) {
         $box.addClass('collapsed-box');

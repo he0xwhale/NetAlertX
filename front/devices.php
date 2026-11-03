@@ -77,17 +77,20 @@
       </div>
 
       <!-- Device Filters ------------------------------------------------------- -->
-      <div class="box box-aqua hidden" id="columnFiltersWrap">
-        <div class="box-header ">
-          <h3 class="box-title"><?= lang('Devices_Filters');?> </h3>
-          <div class="box-tools pull-right">
-            <button type="button" class="btn btn-box-tool" data-widget="collapse">
+      <div class="box box-aqua hidden" id="columnFiltersWrap" style="margin-bottom: 10px;">
+        <div class="box-body" style="padding: 6px 15px; display: flex; align-items: center; flex-wrap: wrap; gap: 15px;">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <i class="fa fa-filter text-aqua" style="font-size: 14px;"></i>
+            <strong style="font-size: 14px; margin-right: 5px;"><?= lang('Devices_Filters');?>:</strong>
+          </div>
+          <!-- Placeholder ------------------------------------------------------- -->
+          <div id="columnFilters" style="display: flex; align-items: center; flex-wrap: wrap; gap: 15px; padding: 0;"></div>
+          <div class="box-tools pull-right" style="margin-left: auto;">
+            <button type="button" class="btn btn-box-tool" data-widget="collapse" style="padding: 2px 5px;">
               <i class="fa fa-minus"></i>
             </button>
           </div>
         </div>
-        <!-- Placeholder ------------------------------------------------------- -->
-        <div class="box-body" id="columnFilters"></div>
       </div>
 
 <!-- datatable ------------------------------------------------------------- -->

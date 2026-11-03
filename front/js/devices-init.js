@@ -25,11 +25,11 @@ missingNumbers = [];
 // DEVICE_COLUMN_FIELDS, COL, NUMERIC_DEFAULTS, GRAPHQL_EXTRA_FIELDS, COLUMN_NAME_MAP
 // are all defined in js/device-columns.js — edit that file to add new columns.
 
-// Collapse DevicePresence and Filters sections on sub-pages (#my_devices, etc.) or mobile screens
+// Collapse DevicePresence on sub-pages (#my_devices, etc.) or mobile screens (keep Filters expanded)
 (function collapseOnSubpageOrMobile() {
   var hasSubpageHash = window.location.hash && window.location.hash.length > 1;
   if (hasSubpageHash || window.innerWidth < 768) {
-    ['#clients', '#columnFiltersWrap'].forEach(function(sel) {
+    ['#clients'].forEach(function(sel) {
       var $box = $(sel);
       if ($box.length) {
         $box.addClass('collapsed-box');
