@@ -35,6 +35,54 @@ if (file_exists($rulesPath)) {
   cursor: pointer;
 }
 
+/* Dedicated Notification Hover Card Styles */
+#notification-hover-card {
+  position: fixed;
+  z-index: 99999;
+  max-width: 580px;
+  min-width: 380px;
+  background: #222d32;
+  border: 1px solid #00c0ef;
+  border-radius: 6px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.7);
+  pointer-events: none;
+  font-family: inherit;
+  font-size: 12px;
+  display: none;
+  overflow: hidden;
+}
+#notification-hover-card .nhc-header {
+  background: #1a2226;
+  color: #00c0ef;
+  border-bottom: 1px solid #374850;
+  font-weight: bold;
+  padding: 8px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+#notification-hover-card .nhc-body {
+  padding: 10px;
+  max-height: 380px;
+  overflow-y: auto;
+  color: #ecf0f5;
+}
+#notification-hover-card table {
+  margin-bottom: 0;
+  background: #1a2226;
+  color: #ecf0f5;
+  font-size: 11px;
+}
+#notification-hover-card table th {
+  background: #111;
+  color: #00c0ef;
+  padding: 5px 8px;
+}
+#notification-hover-card table td {
+  padding: 4px 8px;
+  vertical-align: middle;
+}
+
 /* Hover Popover Styles */
 .report-popover {
   max-width: 550px !important;
@@ -434,6 +482,72 @@ if (file_exists($rulesPath)) {
     return html;
   }
 
+    // Native, robust hover tooltip card for notification report links
+  function initNotificationHoverCard() {
+    if ($('#notification-hover-card').length === 0) {
+      $('<div id="notification-hover-card"><div class="nhc-header"><span class="nhc-title"></span></div><div class="nhc-body"></div></div>').appendTo('body');
+    }
+
+    if (initNotificationHoverCard._attached) return;
+    initNotificationHoverCard._attached = true;
+
+    let hoverTimer = null;
+    let currentTrigger = null;
+
+    $(document).on('mouseenter', '.report-link-trigger', function (e) {
+      currentTrigger = this;
+      const $el = $(this);
+      const guid = $el.data('guid');
+      clearTimeout(hoverTimer);
+
+      hoverTimer = setTimeout(function () {
+        if (currentTrigger !== $el[0]) return;
+        const html = buildHoverTableHtml(guid);
+        const $card = $('#notification-hover-card');
+        $card.find('.nhc-title').html('<i class="fa fa-table text-aqua"></i> 报表详情与设备变动列表');
+        $card.find('.nhc-body').html(html);
+
+        positionHoverCard(e);
+        $card.stop(true, true).fadeIn(120);
+      }, 80);
+    });
+
+    $(document).on('mousemove', '.report-link-trigger', function (e) {
+      if ($('#notification-hover-card').is(':visible')) {
+        positionHoverCard(e);
+      }
+    });
+
+    $(document).on('mouseleave', '.report-link-trigger', function () {
+      clearTimeout(hoverTimer);
+      currentTrigger = null;
+      $('#notification-hover-card').stop(true, true).fadeOut(80);
+    });
+
+    function positionHoverCard(e) {
+      const $card = $('#notification-hover-card');
+      const cardWidth = $card.outerWidth();
+      const cardHeight = $card.outerHeight();
+      const padding = 15;
+      const winWidth = $(window).width();
+      const winHeight = $(window).height();
+
+      let left = e.clientX + padding;
+      let top = e.clientY + padding;
+
+      if (left + cardWidth > winWidth - 10) {
+        left = e.clientX - cardWidth - padding;
+      }
+      if (top + cardHeight > winHeight - 10) {
+        top = e.clientY - cardHeight - padding;
+      }
+      if (left < 10) left = 10;
+      if (top < 10) top = 10;
+
+      $card.css({ left: left + 'px', top: top + 'px' });
+    }
+  }
+
   $(document).ready(function() {
     updateFilterButtonState();
 
@@ -596,29 +710,7 @@ if (file_exists($rulesPath)) {
       },
       drawCallback: function() {
         safeHideSkeleton();
-        // Init Hover Popover for report link titles
-        try {
-          // Dispose existing popovers to prevent detached duplicate instances
-          $('.report-link-trigger').popover('destroy');
-        } catch(e) {}
-        try {
-          $('.report-link-trigger').popover({
-            trigger: 'hover',
-            placement: 'auto top',
-            html: true,
-            container: 'body',
-            sanitize: false,
-            delay: { show: 100, hide: 150 },
-            template: '<div class="popover report-popover" role="tooltip"><div class="arrow"></div><h3 class="popover-title"></h3><div class="popover-content"></div></div>',
-            title: function() {
-              return '<i class="fa fa-table text-aqua"></i> 报表详情快速预览';
-            },
-            content: function() {
-              var guid = $(this).data('guid');
-              return buildHoverTableHtml(guid);
-            }
-          });
-        } catch(e) {}
+        initNotificationHoverCard();
       }
     });
 
