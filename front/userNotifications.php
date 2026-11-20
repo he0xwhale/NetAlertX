@@ -443,22 +443,91 @@ if (file_exists($rulesPath)) {
   }
 
   // Generate Table HTML for Hover Popover
-  function buildHoverTableHtml(guid) {
-    var rep = g_notificationsTableData[guid];
-    if (!rep) return '<div style="color: #999; padding: 5px;">暂无扩展报表数据</div>';
+  function buildHoverTableHtml(guid, fallbackText) {
+    var rep = guid ? g_notificationsTableData[guid] : null;
+    var jd = null;
     
-    var jd = rep.json;
-    if (typeof jd === 'string') {
-      try { jd = JSON.parse(jd); } catch(e) { jd = {}; }
+    if (rep && rep.json) {
+      jd = rep.json;
+      if (typeof jd === 'string') {
+        try { jd = JSON.parse(jd); } catch(e) { jd = null; }
+      }
     }
-    if (!jd || typeof jd !== 'object') return '<div style="color: #999; padding: 5px;">报表内容为空</div>';
+
+    // Fallback: If no report in cache, parse from inline summary / fallback text
+    if (!jd || typeof jd !== 'object') {
+      var down_d = [];
+      var new_d = [];
+      var ev_d = [];
+
+      var textToParse = fallbackText || '';
+      if (!textToParse && guid) {
+        // Find row in DataTable data if possible
+        const table = $('#notificationsTable').DataTable();
+        table.rows().every(function() {
+          var d = this.data();
+          if (d && (d.guid === guid || (d.content && d.content.indexOf(guid) !== -1))) {
+            textToParse = d.content || '';
+          }
+        });
+      }
+
+      if (textToParse) {
+        // Remove Report:guid prefix if present
+        if (textToParse.indexOf('::') !== -1) {
+          textToParse = textToParse.split('::')[1];
+        } else if (textToParse.indexOf('Report:') !== -1) {
+          textToParse = textToParse.replace(/Report:[a-f0-9-]+/i, '').trim();
+        }
+
+        // Parse segment by segment separated by |
+        var segments = textToParse.split('|');
+        segments.forEach(function(seg) {
+          seg = seg.trim();
+          if (seg.indexOf('离线:') !== -1 || seg.indexOf('🔴') !== -1) {
+            var items = seg.replace(/.*(?:离线:|🔴)/, '').trim().split(',');
+            items.forEach(function(item) {
+              item = item.trim();
+              if (item) down_d.push({ devName: item, eveIp: '-', eveMac: '-' });
+            });
+          } else if (seg.indexOf('新设备:') !== -1 || seg.indexOf('🆕') !== -1) {
+            var items = seg.replace(/.*(?:新设备:|🆕)/, '').trim().split(',');
+            items.forEach(function(item) {
+              item = item.trim();
+              if (item) new_d.push({ devName: item, eveIp: '-', eveMac: '-' });
+            });
+          } else if (seg.indexOf('事件:') !== -1 || seg.indexOf('⚡') !== -1) {
+            var items = seg.replace(/.*(?:事件:|⚡)/, '').trim().split(',');
+            items.forEach(function(item) {
+              item = item.trim();
+              if (!item) return;
+              var evType = 'Connected';
+              if (item.indexOf('Disconnected') !== -1) evType = 'Disconnected';
+              var cleanName = item.replace(/\s*\((Connected|Disconnected)\)/i, '').replace(/等共\d+个/i, '').trim();
+              if (cleanName) {
+                ev_d.push({ devName: cleanName, eveIp: '-', eveMac: '-', eveEventType: evType });
+              }
+            });
+          }
+        });
+      }
+
+      if (down_d.length > 0 || new_d.length > 0 || ev_d.length > 0) {
+        jd = { down_devices: down_d, new_devices: new_d, events: ev_d };
+      }
+    }
+
+    if (!jd || typeof jd !== 'object') {
+      var rawDisplay = fallbackText ? $('<div/>').text(fallbackText).html() : '暂无详细报表数据（已随周期归档）';
+      return '<div style="color: #bbb; padding: 8px 12px; font-size: 12px; line-height: 1.5;"><i class="fa fa-info-circle text-aqua"></i> ' + rawDisplay + '</div>';
+    }
 
     var down_d = jd.down_devices || [];
     var new_d = jd.new_devices || [];
     var ev_d = jd.events || [];
 
     if (down_d.length === 0 && new_d.length === 0 && ev_d.length === 0) {
-      return '<div style="color: #bbb; padding: 5px;">该时段网络设备无离线或事件变动</div>';
+      return '<div style="color: #bbb; padding: 10px; font-size: 12px;">该时段网络设备无离线或事件变动</div>';
     }
 
     var html = '<table class="table table-condensed table-bordered" style="margin-bottom: 0; background: #1a2226; color: #ecf0f5; font-size: 11px;">';
@@ -473,16 +542,18 @@ if (file_exists($rulesPath)) {
     });
 
     ev_d.forEach(function(e) {
-      var badge = e.eveEventType === 'Connected' ? '<span class="badge bg-green">Connected</span>' : '<span class="badge bg-gray">Disconnected</span>';
+      var badge = (e.eveEventType === 'Connected') ? '<span class="badge bg-green">Connected</span>' : '<span class="badge bg-gray">Disconnected</span>';
       html += '<tr><td><span style="color:#00c0ef;">⚡ ' + (e.devName || '设备') + '</span></td><td>' + (e.eveIp || '-') + '</td><td>' + (e.eveMac || '-') + '</td><td>' + badge + '</td></tr>';
     });
 
     html += '</tbody></table>';
-    html += '<div style="margin-top: 8px; text-align: right; color: #00c0ef;"><small>点击标题即可全屏查看官方报表详情 &rarr;</small></div>';
+    if (guid && g_notificationsTableData[guid]) {
+      html += '<div style="margin-top: 8px; text-align: right; color: #00c0ef;"><small>点击标题即可全屏查看官方报表详情 &rarr;</small></div>';
+    }
     return html;
   }
 
-    // Native, robust hover tooltip card for notification report links
+  // Native, robust hover tooltip card for notification report links
   function initNotificationHoverCard() {
     if ($('#notification-hover-card').length === 0) {
       $('<div id="notification-hover-card"><div class="nhc-header"><span class="nhc-title"></span></div><div class="nhc-body"></div></div>').appendTo('body');
@@ -494,34 +565,38 @@ if (file_exists($rulesPath)) {
     let hoverTimer = null;
     let currentTrigger = null;
 
-    $(document).on('mouseenter', '.report-link-trigger', function (e) {
-      currentTrigger = this;
-      const $el = $(this);
-      const guid = $el.data('guid');
+    // Hover trigger on both .report-link-trigger and .col-content td
+    $(document).on('mouseenter', '.report-link-trigger, td.col-content', function (e) {
+      var targetEl = this;
+      var $trigger = $(targetEl).hasClass('report-link-trigger') ? $(targetEl) : $(targetEl).find('.report-link-trigger');
+      var guid = $trigger.length > 0 ? $trigger.data('guid') : '';
+      var fallbackText = $trigger.length > 0 ? $trigger.text() : $(targetEl).text();
+
+      currentTrigger = targetEl;
       clearTimeout(hoverTimer);
 
       hoverTimer = setTimeout(function () {
-        if (currentTrigger !== $el[0]) return;
-        const html = buildHoverTableHtml(guid);
+        if (currentTrigger !== targetEl) return;
+        const html = buildHoverTableHtml(guid, fallbackText);
         const $card = $('#notification-hover-card');
         $card.find('.nhc-title').html('<i class="fa fa-table text-aqua"></i> 报表详情与设备变动列表');
         $card.find('.nhc-body').html(html);
 
         positionHoverCard(e);
-        $card.stop(true, true).fadeIn(120);
-      }, 80);
+        $card.stop(true, true).fadeIn(100);
+      }, 60);
     });
 
-    $(document).on('mousemove', '.report-link-trigger', function (e) {
+    $(document).on('mousemove', '.report-link-trigger, td.col-content', function (e) {
       if ($('#notification-hover-card').is(':visible')) {
         positionHoverCard(e);
       }
     });
 
-    $(document).on('mouseleave', '.report-link-trigger', function () {
+    $(document).on('mouseleave', '.report-link-trigger, td.col-content', function () {
       clearTimeout(hoverTimer);
       currentTrigger = null;
-      $('#notification-hover-card').stop(true, true).fadeOut(80);
+      $('#notification-hover-card').stop(true, true).fadeOut(60);
     });
 
     function positionHoverCard(e) {
@@ -701,7 +776,7 @@ if (file_exists($rulesPath)) {
       "columnDefs": [
         { "width": "15%", "targets": [0] },
         { "width": "12%", "targets": [1] },
-        { "width": "53%", "targets": [2] },
+        { "width": "53%", "targets": [2], "className": "col-content" },
         { "width": "5%", "targets": [3,4,5] }
       ],
       "order": [[0, "desc"]],
